@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Users, Clock, Target, ChartBar, Shield, ArrowLeft } from "lucide-react";
 
@@ -68,6 +69,7 @@ const benefits = [
 ];
 
 const InvestSection = () => {
+  const navigate = useNavigate();
   return (
     <section id="invest" className="py-24 bg-background relative overflow-hidden">
       {/* Decorative Background */}
@@ -206,6 +208,7 @@ const InvestSection = () => {
                   variant={opportunity.status === "مكتمل" ? "outline" : "default"}
                   className="w-full"
                   disabled={opportunity.status === "مكتمل"}
+                  onClick={() => navigate('/investor-registration')}
                 >
                   {opportunity.status === "مكتمل" ? "مكتمل التمويل" : "استثمر الآن"}
                 </Button>
@@ -226,7 +229,7 @@ const InvestSection = () => {
                 قدّم مشروعك للمستثمرين وابدأ رحلة النجاح معنا
               </p>
             </div>
-            <Button variant="hero" size="xl" className="group whitespace-nowrap">
+            <Button variant="hero" size="xl" className="group whitespace-nowrap" onClick={() => navigate('/investor-registration')}>
               قدّم مشروعك
               <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
             </Button>

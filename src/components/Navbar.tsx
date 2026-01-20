@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Fingerprint } from "lucide-react";
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
@@ -47,11 +49,11 @@ const Navbar = () => {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>
               تسجيل الدخول
             </Button>
-            <Button variant="default" size="sm">
-              إنشاء حساب
+            <Button variant="default" size="sm" onClick={() => navigate('/add-app')}>
+              أضف تطبيقك
             </Button>
           </div>
 
@@ -79,11 +81,11 @@ const Navbar = () => {
                 </a>
               ))}
               <div className="flex gap-3 pt-4 border-t border-border/50">
-                <Button variant="ghost" size="sm" className="flex-1">
+                <Button variant="ghost" size="sm" className="flex-1" onClick={() => navigate('/login')}>
                   تسجيل الدخول
                 </Button>
-                <Button variant="default" size="sm" className="flex-1">
-                  إنشاء حساب
+                <Button variant="default" size="sm" className="flex-1" onClick={() => navigate('/add-app')}>
+                  أضف تطبيقك
                 </Button>
               </div>
             </div>

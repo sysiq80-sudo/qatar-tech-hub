@@ -1,6 +1,16 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Star, Eye, Smartphone, Globe } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const apps = [
   {
@@ -78,6 +88,38 @@ const apps = [
 ];
 
 const AppsSection = () => {
+  const { toast } = useToast();
+  const [selectedApp, setSelectedApp] = useState<typeof apps[0] | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("الكل");
+
+  const handleBuyNow = (app: typeof apps[0]) => {
+    toast({
+      title: "إضافة إلى السلة",
+      description: `تم إضافة "${app.name}" إلى سلة المشتريات`,
+      duration: 3000,
+    });
+  };
+
+  const handlePreview = (app: typeof apps[0]) => {
+    toast({
+      title: "معاينة التطبيق",
+      description: `فتح معاينة مباشرة لـ "${app.name}"`,
+      duration: 2000,
+    });
+    // يمكن فتح نافذة جديدة للمعاينة
+    // window.open(`/preview/${app.id}`, '_blank');
+  };
+
+  const handleViewDetails = (app: typeof apps[0]) => {
+    setSelectedApp(app);
+    setIsDetailsOpen(true);
+  };
+
+  const filteredApps = activeFilter === "الكل" 
+    ? apps 
+    : apps.filter(app => app.category === activeFilter);
+
   return (
     <section id="apps" className="py-24 bg-background">
       <div className="container mx-auto px-4">
@@ -99,8 +141,9 @@ const AppsSection = () => {
           {["الكل", "تجارة إلكترونية", "خدمات", "تعليم", "صحة", "عقارات"].map((filter) => (
             <button
               key={filter}
+              onClick={() => setActiveFilter(filter)}
               className={`px-5 py-2.5 rounded-full font-medium transition-all duration-300 ${
-                filter === "الكل"
+                filter === activeFilter
                   ? "bg-primary text-primary-foreground shadow-elegant"
                   : "bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary"
               }`}
@@ -112,7 +155,7 @@ const AppsSection = () => {
 
         {/* Apps Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {apps.map((app, index) => (
+          {filteredApps.map((app, index) => (
             <div
               key={app.id}
               className="group bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-xl transition-all duration-500 hover:-translate-y-2 card-shine animate-fade-in"
@@ -145,11 +188,21 @@ const AppsSection = () => {
 
                 {/* Quick Actions */}
                 <div className="absolute bottom-4 left-4 right-4 flex gap-2 opacity-0 translate-y-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
-                  <Button variant="hero" size="sm" className="flex-1">
+                  <Button 
+                    variant="hero" 
+                    size="sm" 
+                    className="flex-1"
+                    onClick={() => handleBuyNow(app)}
+                  >
                     <ShoppingCart className="w-4 h-4" />
                     شراء الآن
                   </Button>
-                  <Button variant="heroOutline" size="sm" className="bg-card/90 backdrop-blur-sm border-gold-400/50 text-gold-400">
+                  <Button 
+                    variant="heroOutline" 
+                    size="sm" 
+                    className="bg-card/90 backdrop-blur-sm border-gold-400/50 text-gold-400"
+                    onClick={() => handlePreview(app)}
+                  >
                     <Eye className="w-4 h-4" />
                   </Button>
                 </div>
@@ -180,7 +233,12 @@ const AppsSection = () => {
                     <span className="text-2xl font-bold text-primary">{app.price}</span>
                     <span className="text-sm text-muted-foreground mr-1">ر.ق</span>
                   </div>
-                  <Button variant="ghost" size="sm" className="text-primary">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-primary"
+                    onClick={() => handleViewDetails(app)}
+                  >
                     عرض التفاصيل
                   </Button>
                 </div>
@@ -196,6 +254,79 @@ const AppsSection = () => {
           </Button>
         </div>
       </div>
+
+      {/* App Details Dialog */}
+      <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">{selectedApp?.name}</DialogTitle>
+            <DialogDescription>
+              {selectedApp?.category} • {selectedApp?.type}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedApp && (
+            <div className="space-y-4">
+              <img
+                src={selectedApp.image}
+                alt={selectedApp.name}
+                className="w-full h-64 object-cover rounded-lg"
+              />
+              
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1">
+                  <Star className="w-5 h-5 fill-gold-500 text-gold-500" />
+                  <span className="font-semibold">{selectedApp.rating}</span>
+                  <span className="text-muted-foreground">({selectedApp.reviews} تقييم)</span>
+                </div>
+                {selectedApp.featured && (
+                  <Badge className="bg-gold-500 text-maroon-900">مميز</Badge>
+                )}
+              </div>
+
+              <div>
+                <h4 className="font-semibold mb-2">الوصف:</h4>
+                <p className="text-muted-foreground">{selectedApp.description}</p>
+              </div>
+
+              <div>
+                <h4 className="font-semibold mb-2">المميزات:</h4>
+                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                  <li>تصميم عصري ومتجاوب</li>
+                  <li>أمان عالي المستوى</li>
+                  <li>دعم فني متواصل</li>
+                  <li>تحديثات مجانية لمدة سنة</li>
+                </ul>
+              </div>
+
+              <div className="flex items-center justify-between pt-4 border-t">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">السعر</p>
+                  <p className="text-3xl font-bold text-primary">
+                    {selectedApp.price} <span className="text-lg">ر.ق</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setIsDetailsOpen(false)}>
+              إغلاق
+            </Button>
+            <Button 
+              variant="hero"
+              onClick={() => {
+                if (selectedApp) handleBuyNow(selectedApp);
+                setIsDetailsOpen(false);
+              }}
+            >
+              <ShoppingCart className="w-4 h-4 ml-2" />
+              شراء الآن
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
